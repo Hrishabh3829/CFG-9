@@ -4,7 +4,7 @@ import News from "./components/News";
 import ContactUs from "./components/Contactus";
 import Login from "./components/Login";
 import Outliner from "./components/Outliner";
-import Total from "./Total";
+//import Total from "./Total";
 
 const App = () => {
   return (
