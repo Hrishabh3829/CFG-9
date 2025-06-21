@@ -1,15 +1,25 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./components/Home";
+import News from "./components/News";
+import ContactUs from "./components/Contactus";
+import Login from "./components/Login";
+import Outliner from "./components/Outliner";
+//import Total from "./Total";
 
-function App() {
+const App = () => {
   return (
-    <>
-    <div>
-      <div className="font-bold flex">
-        Hrishabh
-      </div>
-    </div>
-      
-    </>
-  )
-}
+    <Router>
+      <Routes>
+        <Route element={<Outliner/>}>
+          <Route path="/" element={<Total />} />
+          <Route path="/Home" element={<Home />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/contact" element={<ContactUs />} />
+        </Route>
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </Router>
+  );
+};
 
-export default App
+export default App;
