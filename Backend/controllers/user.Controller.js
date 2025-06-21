@@ -9,7 +9,7 @@ export const register = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email }); 
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
         }
@@ -40,7 +40,7 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const user = await User.findOne({ email });
+        let user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
@@ -50,7 +50,7 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.SECRET_KEY, {
             expiresIn: '1d',
         });
 
@@ -69,11 +69,13 @@ export const login = async (req, res) => {
     }
 };
 
-export const logout = (req, res) => {
+export const logout = async (req, res) => {
     try {
-        res.clearCookie("token").json({ message: "Logged out successfully" });
+        return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+            message: "Logged out Successfully.",
+            success: true
+        })
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
+        console.log(error)
     }
-};
+}
