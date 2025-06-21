@@ -1,11 +1,6 @@
-/* Updated AuthPage with CRY theme (Black & Yellow), about CRY, user role selection, back button, input validation styles, NGO name toggle, and strong password/email format validation */
-
 import React, { useState } from 'react';
-import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -29,7 +24,6 @@ const AuthPage = () => {
   };
 
   const validateStrongPassword = (password) => {
-    // Minimum 8 characters, at least one letter, one number and one special character
     const re = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
     return re.test(password);
   };
@@ -44,69 +38,77 @@ const AuthPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = {};
+  e.preventDefault();
+  const newErrors = {};
 
-    if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-    if (!validateStrongPassword(formData.password)) {
-      newErrors.password = 'Password must be at least 8 characters, include a letter, number and special character';
-    }
-    if (!isLogin && formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
+  if (!validateEmail(formData.email)) {
+    newErrors.email = 'Please enter a valid email address';
+  }
+  if (!validateStrongPassword(formData.password)) {
+    newErrors.password = 'Password must be at least 8 characters, include a letter, number and special character';
+  }
 
-    if (!isLogin && formData.name.trim() === '') {
-      newErrors.name = userType === 'ngo' ? 'NGO name is required' : 'Name is required';
-    }
+  if (!isLogin && formData.password !== formData.confirmPassword) {
+    newErrors.confirmPassword = 'Passwords do not match';
+  }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+  if (!isLogin && formData.name.trim() === '') {
+    newErrors.name = 'Name is required';
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:5000/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+        userType
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || 'Login failed');
       return;
     }
 
-    try {
-    if (isLogin) {
-      // Login request
-      const res = await axios.post(`${BACKEND_URL}/api/v1/user/login`, {
-        email: formData.email,
-        password: formData.password,
-      });
-      alert(`Welcome back, ${res.data.name || formData.email}`);
-      // Optionally: navigate('/dashboard');
-    } else {
-      // Signup request
-      const res = await axios.post(`${BACKEND_URL}/api/v1/user/register`, {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        userType,
-      });
-      alert(`Account created for ${res.data.name || formData.name} (${userType})`);
-      // Optionally: navigate('/dashboard');
+    alert(data.message);
+
+    // Redirect based on userType
+    if (res.data.user.role === 'ngo') {
+      navigate('/dashboard');
+    } else if (res.data.user.role === 'admin') {
+      navigate('/admin-dashboard');
+    } else if (res.data.user.role === 'frontliner') {
+      navigate('/frontliner-dashboard');
     }
-  } catch (error) {
-    // Handle backend errors
-    if (error.response && error.response.data && error.response.data.message) {
-      alert(error.response.data.message);
-    } else {
-      alert('An error occurred. Please try again.');
-    }
+
+
+  } catch (err) {
+    console.error(err);
+    alert('Something went wrong. Try again.');
   }
-  };
+};
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
     setFormData({ name: '', email: '', password: '', confirmPassword: '', rememberMe: false });
     setErrors({});
   };
-  
-
 
   return (
     <div className="min-h-screen bg-black text-yellow-400 flex items-center justify-center px-4 py-10 relative">
-      <button className="absolute left-0 top-4 p-2 text-yellow-400 hover:text-yellow-600 transition-colors" 
+      <button
+        className="absolute left-0 top-4 p-2 text-yellow-400 hover:text-yellow-600 transition-colors"
         onClick={() => navigate('/')}
       >
         ← Back
@@ -114,31 +116,26 @@ const AuthPage = () => {
 
       <div className="max-w-md w-full space-y-6">
         <div className="text-center">
-          <h1 className="text-4xl font-bold">CRY - Child Rights and You</h1>
-          <p className="mt-2 text-yellow-300">
-            Ensuring happier childhoods by mobilizing potential and inspiring action.
-          </p>
           <h2 className="text-2xl mt-6">{isLogin ? 'Login' : 'Sign Up'} as {userType}</h2>
         </div>
 
-        {!isLogin && (
-          <div className="flex justify-around">
-            <button
-              onClick={() => setUserType('frontliner')}
-              className={`px-4 py-2 rounded ${userType === 'frontliner' ? 'bg-yellow-500 text-black' : 'bg-yellow-700 text-white'}`}
-            >
-              Frontliner Signup
-            </button>
-            <button
-              onClick={() => setUserType('ngo')}
-              className={`px-4 py-2 rounded ${userType === 'ngo' ? 'bg-yellow-500 text-black' : 'bg-yellow-700 text-white'}`}
-            >
-              NGO Signup
-            </button>
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="bg-yellow-100 text-black p-6 rounded-xl space-y-4">
+
+          {/* Dropdown role selector */}
+          <div>
+            <label className="block mb-1">Select Role</label>
+            <select
+              name="userType"
+              value={userType}
+              onChange={(e) => setUserType(e.target.value)}
+              className="w-full p-2 border rounded"
+            >
+              <option value="frontliner">Frontliner</option>
+              <option value="ngo">NGO Partner</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
           {!isLogin && (
             <div>
               <label className="block mb-1">{userType === 'ngo' ? 'NGO Name' : 'Full Name'}</label>
@@ -180,7 +177,11 @@ const AuthPage = () => {
               required
             />
             {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-sm mt-1 text-yellow-700">
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-sm mt-1 text-yellow-700"
+            >
               {showPassword ? 'Hide' : 'Show'} Password
             </button>
           </div>
@@ -197,7 +198,11 @@ const AuthPage = () => {
                 required
               />
               {errors.confirmPassword && <p className="text-red-600 text-sm mt-1">{errors.confirmPassword}</p>}
-              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="text-sm mt-1 text-yellow-700">
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="text-sm mt-1 text-yellow-700"
+              >
                 {showConfirmPassword ? 'Hide' : 'Show'} Confirm Password
               </button>
             </div>
