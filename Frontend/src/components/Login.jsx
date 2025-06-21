@@ -3,6 +3,9 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -40,7 +43,7 @@ const AuthPage = () => {
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
 
@@ -63,11 +66,34 @@ const AuthPage = () => {
       return;
     }
 
+    try {
     if (isLogin) {
-      alert(`Welcome back, ${formData.email}`);
+      // Login request
+      const res = await axios.post(`${BACKEND_URL}/api/v1/user/login`, {
+        email: formData.email,
+        password: formData.password,
+      });
+      alert(`Welcome back, ${res.data.name || formData.email}`);
+      // Optionally: navigate('/dashboard');
     } else {
-      alert(`Account created for ${formData.name} (${userType})`);
+      // Signup request
+      const res = await axios.post(`${BACKEND_URL}/api/v1/user/register`, {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        userType,
+      });
+      alert(`Account created for ${res.data.name || formData.name} (${userType})`);
+      // Optionally: navigate('/dashboard');
     }
+  } catch (error) {
+    // Handle backend errors
+    if (error.response && error.response.data && error.response.data.message) {
+      alert(error.response.data.message);
+    } else {
+      alert('An error occurred. Please try again.');
+    }
+  }
   };
 
   const toggleAuthMode = () => {
@@ -75,6 +101,8 @@ const AuthPage = () => {
     setFormData({ name: '', email: '', password: '', confirmPassword: '', rememberMe: false });
     setErrors({});
   };
+  
+
 
   return (
     <div className="min-h-screen bg-black text-yellow-400 flex items-center justify-center px-4 py-10 relative">
