@@ -74,14 +74,13 @@ export const deleteTask = async (req, res) => {
 export const submitTask = async (req, res) => {
     try {
         const { taskId } = req.params;
-        const { fileUrl } = req.body;
-
-        if (!fileUrl) {
-            return res.status(400).json({ message: "File URL is required for submission" });
+        
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded." });
         }
 
         const submission = {
-            fileUrl,
+            fileUrl: req.file.path, // URL from Cloudinary
             submissionDate: new Date()
         };
 
@@ -92,6 +91,8 @@ export const submitTask = async (req, res) => {
         );
 
         if (!updatedTask) {
+            // Here you might want to delete the uploaded file from Cloudinary
+            // since the task was not found. I will omit this for now.
             return res.status(404).json({ message: "Task not found" });
         }
         res.status(200).json({ message: "Task submitted successfully", task: updatedTask });
