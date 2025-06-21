@@ -9,6 +9,12 @@ export const register = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
+        // Validate role
+        const validRoles = ['Admin', 'Frontliner', 'PartnerNGO'];
+        if (!validRoles.includes(role)) {
+            return res.status(400).json({ message: "Invalid role. Must be Admin, Frontliner, or PartnerNGO" });
+        }
+
         const existingUser = await User.findOne({ email }); 
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
@@ -21,12 +27,18 @@ export const register = async (req, res) => {
             email,
             password: hashedPassword,
             role,
-            ngoInfo: role === 'ngo' ? ngoInfo : undefined,
+            ngoInfo: role === 'PartnerNGO' ? ngoInfo : undefined,
         });
 
         await newUser.save();
 
-        res.status(201).json({ message: "User registered successfully", user: newUser });
+        // Remove password from response
+        const { password: _, ...userWithoutPassword } = newUser.toObject();
+
+        res.status(201).json({ 
+            message: "User registered successfully", 
+            user: userWithoutPassword 
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });
@@ -54,14 +66,20 @@ export const login = async (req, res) => {
             expiresIn: '1d',
         });
 
-        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSite: 'strict' }).json({
+        // Set cookie with proper options for development
+        res.cookie("token", token, { 
+            maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+            httpOnly: true, // Prevents XSS attacks
+            secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+            sameSite: 'strict' // CSRF protection
+        });
+
+        // Remove password from response
+        const { password: _, ...userWithoutPassword } = user.toObject();
+
+        return res.status(200).json({
             message: `Welcome back, ${user.name}`,
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            }
+            user: userWithoutPassword
         });
     } catch (error) {
         console.error(error);
@@ -71,11 +89,19 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
     try {
-        return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+        res.cookie("token", "", { 
+            maxAge: 0,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+        
+        return res.status(200).json({
             message: "Logged out Successfully.",
             success: true
-        })
+        });
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
     }
 }
