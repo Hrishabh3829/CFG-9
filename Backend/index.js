@@ -4,6 +4,8 @@ import cors from "cors";
 import dotenv from "dotenv"
 import userRoute from "./routes/user.Route.js"
 import connectDB from "./utils/db.js";
+import taskRoute from "./routes/task.Route.js";
+import projectRoute from "./routes/project.Route.js"
 dotenv.config({});
 
 const app = express();
@@ -29,6 +31,8 @@ const PORT = process.env.PORT;
 //api's
 
 app.use("/api/v1/user",userRoute);
+app.use("/api/v1/tasks", taskRoute);
+app.use("/api/v1/projects", projectRoute);
 
 app.listen(PORT, () => {
     connectDB();
