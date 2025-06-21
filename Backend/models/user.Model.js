@@ -19,6 +19,16 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'frontliner', 'ngo'],
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+    verificationToken: {
+        type: String,
+    },
+    verificationTokenExpiry: {
+        type: Date,
+    },
     ngoInfo: {
         name: {
             type: String,

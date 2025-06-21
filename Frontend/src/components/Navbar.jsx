@@ -1,9 +1,27 @@
-import React, { useState } from 'react';
-import { Menu, X, Phone, Mail, MapPin, Play } from 'lucide-react';
-import { Form, Link } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import crylogo from '../assets/crylogo.webp';
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    setUser(null);
+  };
 
   return (
     <nav className="bg-black/95 backdrop-blur-md shadow-lg fixed w-full top-0 z-50">
@@ -11,31 +29,48 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <img src={crylogo} alt="Luxe Logo" className="h-10 w-auto" />
+              <img src={crylogo} alt="CRY Logo" className="h-10 w-auto" />
             </div>
           </div>
           
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              <a href="#home" className="text-yellow-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+              <Link to="/" className="text-yellow-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 Home
-              </a>
-              <a href="#news" className="text-yellow-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+              </Link>
+              <Link to="/news" className="text-yellow-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 News
-              </a>
-              <a href="#contact" className="text-yellow-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+              </Link>
+              <Link to="/contact" className="text-yellow-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 Contact Us
-              </a>
-              <a href="/Login" className="text-yellow-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
-                Login/SignUp
-              </a>
+              </Link>
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-4">
+                  <Link to="/dashboard" className="text-yellow-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="text-yellow-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+                  >
+                    Logout
+                  </button>
+                  <span className="text-yellow-300 text-sm">
+                    {user?.name}
+                  </span>
+                </div>
+              ) : (
+                <Link to="/login" className="text-yellow-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+                  Login/SignUp
+                </Link>
+              )}
             </div>
           </div>
           
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+              className="inline-flex items-center justify-center p-2 rounded-md text-yellow-400 hover:text-white"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -44,24 +79,42 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className="md:hidden bg-white border-t">
+        <div className="md:hidden bg-black/95 border-t border-yellow-400">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <a href="#home" className="text-gray-700 hover:text-gray-900 block px-3 py-2 text-base font-medium">
+            <Link to="/" className="text-yellow-400 hover:text-white block px-3 py-2 text-base font-medium">
               Home
-            </a>
-            <a href="#news" className="text-gray-700 hover:text-gray-900 block px-3 py-2 text-base font-medium">
+            </Link>
+            <Link to="/news" className="text-yellow-400 hover:text-white block px-3 py-2 text-base font-medium">
               News
-            </a>
-            <a href="#contact" className="text-gray-700 hover:text-gray-900 block px-3 py-2 text-base font-medium">
+            </Link>
+            <Link to="/contact" className="text-yellow-400 hover:text-white block px-3 py-2 text-base font-medium">
               Contact Us
-            </a>
-            <a href="/Login" className="text-gray-700 hover:text-gray-900 block px-3 py-2 text-base font-medium">
-              Login/SignUp
-            </a>
+            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link to="/dashboard" className="text-yellow-400 hover:text-white block px-3 py-2 text-base font-medium">
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-yellow-400 hover:text-white block px-3 py-2 text-base font-medium w-full text-left"
+                >
+                  Logout
+                </button>
+                <span className="text-yellow-300 block px-3 py-2 text-sm">
+                  {user?.name}
+                </span>
+              </>
+            ) : (
+              <Link to="/login" className="text-yellow-400 hover:text-white block px-3 py-2 text-base font-medium">
+                Login/SignUp
+              </Link>
+            )}
           </div>
         </div>
       )}
     </nav>
   );
 };
+
 export default Navbar;

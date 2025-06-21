@@ -1,9 +1,8 @@
 /* Updated AuthPage with CRY theme (Black & Yellow), about CRY, user role selection, back button, input validation styles, NGO name toggle, and strong password/email format validation */
 
-import React, { useState } from 'react';
-import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -20,6 +19,7 @@ const AuthPage = () => {
     rememberMe: false
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -45,6 +45,7 @@ const AuthPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const newErrors = {};
 
     if (!validateEmail(formData.email)) {
@@ -63,37 +64,54 @@ const AuthPage = () => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      setLoading(false);
       return;
     }
 
     try {
-    if (isLogin) {
-      // Login request
-      const res = await axios.post(`${BACKEND_URL}/api/v1/user/login`, {
-        email: formData.email,
-        password: formData.password,
-      });
-      alert(`Welcome back, ${res.data.name || formData.email}`);
-      // Optionally: navigate('/dashboard');
-    } else {
-      // Signup request
-      const res = await axios.post(`${BACKEND_URL}/api/v1/user/register`, {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        userType,
-      });
-      alert(`Account created for ${res.data.name || formData.name} (${userType})`);
-      // Optionally: navigate('/dashboard');
+      if (isLogin) {
+        // Login request
+        const res = await axios.post(`${BACKEND_URL}/api/v1/user/login`, {
+          email: formData.email,
+          password: formData.password,
+        }, {
+          withCredentials: true
+        });
+        
+        // Store user data in localStorage for persistence
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        
+        alert(`Welcome back, ${res.data.user.name || formData.email}`);
+        navigate('/dashboard');
+      } else {
+        // Signup request
+        const res = await axios.post(`${BACKEND_URL}/api/v1/user/register`, {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: userType,
+        }, {
+          withCredentials: true
+        });
+        
+        alert(`Account created for ${res.data.user.name || formData.name} (${userType})`);
+        // After successful registration, switch to login mode
+        setIsLogin(true);
+        setFormData({ name: '', email: '', password: '', confirmPassword: '', rememberMe: false });
+        
+        // Show verification message
+        alert('Please check your email and click the verification link to activate your account before logging in.');
+      }
+    } catch (error) {
+      // Handle backend errors
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('An error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    // Handle backend errors
-    if (error.response && error.response.data && error.response.data.message) {
-      alert(error.response.data.message);
-    } else {
-      alert('An error occurred. Please try again.');
-    }
-  }
   };
 
   const toggleAuthMode = () => {
@@ -205,9 +223,10 @@ const AuthPage = () => {
 
           <button
             type="submit"
-            className="w-full py-2 mt-4 bg-black text-yellow-400 rounded hover:bg-yellow-500 hover:text-black transition"
+            disabled={loading}
+            className={`w-full py-2 mt-4 bg-black text-yellow-400 rounded hover:bg-yellow-500 hover:text-black transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {isLogin ? 'Sign In' : 'Create Account'}
+            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
           </button>
         </form>
 
