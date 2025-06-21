@@ -7,6 +7,7 @@ import {
     submitTask
 } from "../controllers/task.Controller.js";
 import isAuthenticated from "../middleware/isAuthenticated.js";
+import upload from "../utils/multer.js";
 
 const router = express.Router();
 
@@ -23,6 +24,6 @@ router.put("/:taskId", isAuthenticated,updateTask);
 router.delete("/:taskId", isAuthenticated,deleteTask);
 
 // Route for a user to submit their work for a task
-router.post("/:taskId/submit", isAuthenticated,submitTask);
+router.post("/:taskId/submit", isAuthenticated, upload.single('file'), submitTask);
 
 export default router; 
