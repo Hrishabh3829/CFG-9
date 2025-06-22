@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { LayoutDashboard, FolderOpen, User, Settings } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 // Public Pages
 import Home from "./components/Home";
 import News from "./components/News";
@@ -19,28 +19,28 @@ import mockProjects from "./ngocomponents/mockProjects.jsx";
 import mockAcceptedProjects from "./ngocomponents/mockAcceptedProjects.jsx";
 
 // Admin Dashboard Components
-import AdminNavbar from "./ADcomponents/Navbar";
-import AdminSidebar from "./ADcomponents/Sidebar";
-import AdminDashboard from "./ADcomponents/Dashboard";
-import AdminProjects from "./ADcomponents/Projects";
+import AdminNavbar from "./ADcomponents/AdminNavbar";
+import AdminSidebar from "./ADcomponents/AdminSidebar";
+import AdminDashboard from "./ADcomponents/AdminDashboard";
+import AdminProjects from "./ADcomponents/AdminProjects";
 import FundingStatus from "./ADcomponents/FundingStatus";
-import AdminSettings from "./ADcomponents/Settings";
+import AdminSettings from "./ADcomponents/AdminSettings";
 
 // Final App Router
-import FDNavbar from "./FDcomponents/Navbar";
-import FDSidebar from "./FDcomponents/Sidebar";
-import FDDashboard from "./FDcomponents/Dashboard";
-import FDProjects from "./FDcomponents/Projects";
-import FDPriority from "./FDcomponents/Priority";
-import FDTasks from "./FDcomponents/tasks";
-import FDSettings from "./FDcomponents/Settings";
+import FDNavbar from "./FDcomponents/FDNavbar";
+import FDSidebar from "./FDcomponents/FDSidebar";
+import FDDashboard from "./FDcomponents/FDDashboard";
+import FDProjects from "./FDcomponents/FDProjects";
+import FDPriority from "./FDcomponents/FDPriority";
+import FDTasks from "./FDcomponents/FDTasks";
+import FDSettings from "./FDcomponents/FDSettings";
 
 // NGO Dashboard Wrapper
 const DashboardApp = () => {
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [projects, setProjects] = useState(mockProjects);
   const [acceptedProjects, setAcceptedProjects] = useState(mockAcceptedProjects);
-
+  const navigate = useNavigate();
   const handleAcceptProject = (projectId) => {
     const project = projects.find((p) => p.id === projectId);
     if (project) {
@@ -72,6 +72,7 @@ const DashboardApp = () => {
 
   const handleLogout = () => {
     alert("Logged out successfully!");
+    navigate('/');
   };
 
   const navigationItems = [
