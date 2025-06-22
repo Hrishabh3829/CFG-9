@@ -1,0 +1,450 @@
+{
+  "info": {
+    "name": "CFG-9 API Collection (Cookie Auth)",
+    "description": "Complete API collection for CFG-9 project with cookie-based authentication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Admin User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@cfg9.com\",\n  \"password\": \"admin123\",\n  \"role\": \"Admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register NGO User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"PartnerNGO\",\n  \"ngoInfo\": {\n    \"name\": \"Helping Hands NGO\",\n    \"address\": \"123 Charity Street, City\",\n    \"registrationNumber\": \"NGO123456\",\n    \"contactPerson\": \"John Doe\",\n    \"phoneNumber\": \"+1234567890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Frontliner User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maria Rodriguez\",\n  \"email\": \"maria.rodriguez@field.org\",\n  \"password\": \"frontliner123\",\n  \"role\": \"Frontliner\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@cfg9.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login NGO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login Frontliner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria.rodriguez@field.org\",\n  \"password\": \"frontliner123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "login"]
+            }
+          }
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/user/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Operations",
+      "item": [
+        {
+          "name": "Create NGO (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Save the Children NGO\",\n  \"email\": \"info@savethechildren.org\",\n  \"password\": \"ngo123456\",\n  \"ngoInfo\": {\n    \"name\": \"Save the Children International\",\n    \"address\": \"456 Hope Avenue, Charity City\",\n    \"registrationNumber\": \"NGO789012\",\n    \"contactPerson\": \"Sarah Johnson\",\n    \"phoneNumber\": \"+1987654321\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/ngos",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "ngos"]
+            }
+          }
+        },
+        {
+          "name": "Create Frontliner (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alex Johnson\",\n  \"email\": \"alex.johnson@field.org\",\n  \"password\": \"frontliner456\",\n  \"frontlinerInfo\": {\n    \"region\": \"South Region\",\n    \"assignedProjects\": [],\n    \"supervisor\": \"Dr. Emily Brown\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/frontliners",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "frontliners"]
+            }
+          }
+        },
+        {
+          "name": "Get All NGOs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/ngos",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "ngos"]
+            }
+          }
+        },
+        {
+          "name": "Get All Frontliners",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/frontliners",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "frontliners"]
+            }
+          }
+        },
+        {
+          "name": "Update Admin Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectNotificationCount\": 5,\n  \"notificationsEnabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/settings/{{adminUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "settings", "{{adminUserId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Admin Dashboard",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/dashboard/{{adminUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "dashboard", "{{adminUserId}}"]
+            }
+          }
+        },
+        {
+          "name": "Toggle User Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{userId}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Project Management",
+      "item": [
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Education for All\",\n  \"startDate\": \"2024-01-15\",\n  \"partnerNgo\": \"{{ngoUserId}}\",\n  \"frontliners\": [\"{{frontlinerUserId}}\"],\n  \"status\": \"Active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            }
+          }
+        },
+        {
+          "name": "Get All Projects",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            }
+          }
+        },
+        {
+          "name": "Get Project by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Education for All - Updated\",\n  \"status\": \"Completed\",\n  \"frontliners\": [\"{{frontlinerUserId}}\", \"{{anotherFrontlinerUserId}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Task Management",
+      "item": [
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Conduct Community Survey\",\n  \"project\": \"{{projectId}}\",\n  \"assignedTo\": \"{{frontlinerUserId}}\",\n  \"dueDate\": \"2024-02-15\",\n  \"status\": \"Pending\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"]
+            }
+          }
+        },
+        {
+          "name": "Get Project Tasks",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/tasks/project/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "project", "{{projectId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Conduct Community Survey - Updated\",\n  \"dueDate\": \"2024-02-20\",\n  \"status\": \"In Progress\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            }
+          }
+        },
+        {
+          "name": "Submit Task (with file)",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "submit"]
+            }
+          }
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 
