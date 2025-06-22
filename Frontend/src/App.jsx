@@ -26,6 +26,15 @@ import AdminProjects from "./ADcomponents/Projects";
 import FundingStatus from "./ADcomponents/FundingStatus";
 import AdminSettings from "./ADcomponents/Settings";
 
+// Final App Router
+import FDNavbar from "./FDcomponents/Navbar";
+import FDSidebar from "./FDcomponents/Sidebar";
+import FDDashboard from "./FDcomponents/Dashboard";
+import FDProjects from "./FDcomponents/Projects";
+import FDPriority from "./FDcomponents/Priority";
+import FDTasks from "./FDcomponents/tasks";
+import FDSettings from "./FDcomponents/Settings";
+
 // NGO Dashboard Wrapper
 const DashboardApp = () => {
   const [currentPage, setCurrentPage] = useState("dashboard");
@@ -150,20 +159,47 @@ const AdminDashboardApp = () => {
   );
 };
 
-// Final App Router
+//frontlinersapp
+const FrontlinerDashboardApp = () => {
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      <FDSidebar />
+      <div className="flex-1 flex flex-col">
+        <FDNavbar />
+        <main className="mt-16 p-6">
+          <Routes>
+            <Route path="/" element={<FDDashboard />} />
+            <Route path="/projects" element={<FDProjects />} />
+            <Route path="/priority" element={<FDPriority />} />
+            <Route path="/tasks" element={<FDTasks />} />
+            <Route path="/settings" element={<FDSettings />} />
+          </Routes>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// Final merged App
 const App = () => {
   return (
     <Router>
       <Routes>
+        {/* Public layout pages inside Outliner */}
         <Route element={<Outliner />}>
           <Route path="/" element={<Total />} />
           <Route path="/home" element={<Home />} />
           <Route path="/news" element={<News />} />
           <Route path="/contact" element={<ContactUs />} />
         </Route>
+
+        {/* Auth */}
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard/*" element={<DashboardApp />} />
-        <Route path="/admin-dashboard/*" element={<AdminDashboardApp />} />
+
+        {/* Dashboards */}
+        <Route path="/dashboard/*" element={<DashboardApp />} />               {/* NGO */}
+        <Route path="/admin-dashboard/*" element={<AdminDashboardApp />} />   {/* Admin */}
+        <Route path="/frontliner-dashboard/*" element={<FrontlinerDashboardApp />} /> {/* Frontliner */}
       </Routes>
     </Router>
   );
