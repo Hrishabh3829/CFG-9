@@ -62,7 +62,7 @@ const AuthPage = () => {
   }
 
   try {
-    const response = await fetch('http://localhost:5000/api/login', {
+    const response = await fetch('http://localhost:5000/api/v1/user/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -84,11 +84,11 @@ const AuthPage = () => {
     alert(data.message);
 
     // Redirect based on userType
-    if (res.data.user.role === 'ngo') {
+    if (data.user && data.user.role === 'ngo') {
       navigate('/dashboard');
-    } else if (res.data.user.role === 'admin') {
+    } else if (data.user && data.user.role === 'admin') {
       navigate('/admin-dashboard');
-    } else if (res.data.user.role === 'frontliner') {
+    } else if (data.user && data.user.role === 'frontliner') {
       navigate('/frontliner-dashboard');
     }
 
