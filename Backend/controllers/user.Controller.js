@@ -148,3 +148,89 @@ export const createTestUser = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+// Test endpoint to create a test frontliner user
+export const createTestFrontliner = async (req, res) => {
+    try {
+        const testUser = {
+            name: "Test Frontliner",
+            email: "frontliner@test.com",
+            password: "Frontliner123!",
+            role: "Frontliner"
+        };
+
+        // Check if test user already exists
+        const existingUser = await User.findOne({ email: testUser.email });
+        if (existingUser) {
+            return res.status(200).json({ 
+                message: "Test frontliner already exists", 
+                user: { email: testUser.email, role: testUser.role }
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(testUser.password, 10);
+
+        const newUser = new User({
+            name: testUser.name,
+            email: testUser.email,
+            password: hashedPassword,
+            role: testUser.role,
+        });
+
+        await newUser.save();
+
+        // Remove password from response
+        const { password: _, ...userWithoutPassword } = newUser.toObject();
+
+        res.status(201).json({ 
+            message: "Test frontliner created successfully", 
+            user: userWithoutPassword 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// Test endpoint to create a test NGO user
+export const createTestNGO = async (req, res) => {
+    try {
+        const testUser = {
+            name: "Test NGO",
+            email: "ngo@test.com",
+            password: "NGO123!",
+            role: "PartnerNGO"
+        };
+
+        // Check if test user already exists
+        const existingUser = await User.findOne({ email: testUser.email });
+        if (existingUser) {
+            return res.status(200).json({ 
+                message: "Test NGO already exists", 
+                user: { email: testUser.email, role: testUser.role }
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(testUser.password, 10);
+
+        const newUser = new User({
+            name: testUser.name,
+            email: testUser.email,
+            password: hashedPassword,
+            role: testUser.role,
+        });
+
+        await newUser.save();
+
+        // Remove password from response
+        const { password: _, ...userWithoutPassword } = newUser.toObject();
+
+        res.status(201).json({ 
+            message: "Test NGO created successfully", 
+            user: userWithoutPassword 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};

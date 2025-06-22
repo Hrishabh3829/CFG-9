@@ -5,7 +5,7 @@ const isFrontliner = (req, res, next) => {
             return res.status(401).json({ message: "Authentication required" });
         }
 
-        if (req.user.role !== 'frontliner') {
+        if (req.user.role !== 'Frontliner') {
             return res.status(403).json({ message: "Access denied. Frontliner role required." });
         }
 

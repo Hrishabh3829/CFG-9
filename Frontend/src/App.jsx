@@ -280,6 +280,80 @@ const App = () => {
                 user: authUtils.getUser(),
                 currentRoute: authUtils.getCurrentUserRoute()
               }, null, 2)}</pre>
+              
+              <div className="mt-4">
+                <h2>Test Users</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="border p-4 rounded">
+                    <h3>Admin</h3>
+                    <p>Email: admin@test.com</p>
+                    <p>Password: Admin123!</p>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('http://localhost:8000/api/v1/user/create-test-user', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                          });
+                          const data = await response.json();
+                          alert(data.message);
+                        } catch (error) {
+                          alert('Error creating test user: ' + error.message);
+                        }
+                      }}
+                      className="px-4 py-2 bg-red-600 text-white rounded"
+                    >
+                      Create Admin
+                    </button>
+                  </div>
+                  
+                  <div className="border p-4 rounded">
+                    <h3>Frontliner</h3>
+                    <p>Email: frontliner@test.com</p>
+                    <p>Password: Frontliner123!</p>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('http://localhost:8000/api/v1/user/create-test-frontliner', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                          });
+                          const data = await response.json();
+                          alert(data.message);
+                        } catch (error) {
+                          alert('Error creating test user: ' + error.message);
+                        }
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded"
+                    >
+                      Create Frontliner
+                    </button>
+                  </div>
+                  
+                  <div className="border p-4 rounded">
+                    <h3>NGO</h3>
+                    <p>Email: ngo@test.com</p>
+                    <p>Password: NGO123!</p>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('http://localhost:8000/api/v1/user/create-test-ngo', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                          });
+                          const data = await response.json();
+                          alert(data.message);
+                        } catch (error) {
+                          alert('Error creating test user: ' + error.message);
+                        }
+                      }}
+                      className="px-4 py-2 bg-yellow-600 text-white rounded"
+                    >
+                      Create NGO
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           } />
           <Route 
