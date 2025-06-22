@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { userAPI } from '../services/api';
+import { authUtils } from '../services/auth';
+import { USER_ROLES, USER_TYPES, ROUTES, ERROR_MESSAGES } from '../constants';
+import toast from 'react-hot-toast';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userType, setUserType] = useState('frontliner');
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,25 +42,62 @@ const AuthPage = () => {
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
+  // Map frontend user types to backend roles
+  const mapUserTypeToRole = (userType) => {
+    switch (userType) {
+      case USER_TYPES.NGO:
+        return USER_ROLES.PARTNER_NGO;
+      case USER_TYPES.ADMIN:
+        return USER_ROLES.ADMIN;
+      case USER_TYPES.FRONTLINER:
+        return USER_ROLES.FRONTLINER;
+      default:
+        return USER_ROLES.FRONTLINER;
+    }
+  };
+
+  // Map backend roles to frontend routes
+  const mapRoleToRoute = (role) => {
+    switch (role) {
+      case USER_ROLES.PARTNER_NGO:
+        return ROUTES.DASHBOARD;
+      case USER_ROLES.ADMIN:
+        return ROUTES.ADMIN_DASHBOARD;
+      case USER_ROLES.FRONTLINER:
+        return ROUTES.FRONTLINER_DASHBOARD;
+      default:
+        return ROUTES.DASHBOARD;
+    }
+  };
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const newErrors = {};
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors({});
+    
+    const newErrors = {};
 
-  if (!validateEmail(formData.email)) {
-    newErrors.email = 'Please enter a valid email address';
-  }
-  if (!validateStrongPassword(formData.password)) {
-    newErrors.password = 'Password must be at least 8 characters, include a letter, number and special character';
-  }
+    // Validation
+    if (!validateEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    if (!validateStrongPassword(formData.password)) {
+      newErrors.password = 'Password must be at least 8 characters, include a letter, number and special character';
+    }
 
-  if (!isLogin && formData.password !== formData.confirmPassword) {
-    newErrors.confirmPassword = 'Passwords do not match';
-  }
+    if (!isLogin && formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
 
-  if (!isLogin && formData.name.trim() === '') {
-    newErrors.name = 'Name is required';
-  }
+    if (!isLogin && formData.name.trim() === '') {
+      newErrors.name = 'Name is required';
+    }
 
+<<<<<<< HEAD
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setIsLoading(false);
+=======
   if (Object.keys(newErrors).length > 0) {
     setErrors(newErrors);
     return;
@@ -78,11 +120,93 @@ const AuthPage = () => {
 
     if (!response.ok) {
       alert(data.error || 'Login failed');
+>>>>>>> 8d6d49e5333069fdf5ff849c81cd398c7540c309
       return;
     }
 
-    alert(data.message);
+    try {
+      if (isLogin) {
+        // Login
+        console.log('Attempting login with:', { email: formData.email, password: formData.password });
+        const data = await userAPI.login(formData.email, formData.password);
+        
+        console.log('Login response:', data);
+        
+        // Store user data using auth utils
+        if (data.user) {
+          console.log('Storing user data:', data.user);
+          authUtils.setUser(data.user);
+        }
+        
+        // Navigate based on user role
+        if (data.user && data.user.role) {
+          const route = authUtils.getRouteByRole(data.user.role);
+          console.log('Navigating to route:', route, 'for role:', data.user.role);
+          navigate(route);
+        } else {
+          // Fallback based on selected user type
+          const route = authUtils.getRouteByRole(mapUserTypeToRole(userType));
+          console.log('Fallback navigation to route:', route);
+          navigate(route);
+        }
+      } else {
+        // Register
+        const userData = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: mapUserTypeToRole(userType),
+          ...(userType === USER_TYPES.NGO && {
+            ngoInfo: {
+              name: formData.name,
+              address: '',
+              registrationNumber: '',
+              contactPerson: formData.name,
+              phoneNumber: ''
+            }
+          })
+        };
 
+<<<<<<< HEAD
+        const data = await userAPI.register(userData);
+        
+        // Store user data using auth utils
+        if (data.user) {
+          authUtils.setUser(data.user);
+        }
+        
+        // Navigate based on user role
+        if (data.user && data.user.role) {
+          const route = authUtils.getRouteByRole(data.user.role);
+          navigate(route);
+        } else {
+          // Fallback based on selected user type
+          const route = authUtils.getRouteByRole(mapUserTypeToRole(userType));
+          navigate(route);
+        }
+      }
+    } catch (error) {
+      // Handle specific error cases
+      if (error.response?.status === 400) {
+        const errorMessage = error.response.data.message;
+        if (errorMessage.includes('already exists')) {
+          setErrors({ email: ERROR_MESSAGES.USER_EXISTS });
+        } else if (errorMessage.includes('Invalid credentials')) {
+          setErrors({ email: ERROR_MESSAGES.INVALID_CREDENTIALS });
+        } else {
+          toast.error(errorMessage);
+        }
+      } else if (error.response?.status === 401) {
+        setErrors({ email: ERROR_MESSAGES.INVALID_CREDENTIALS });
+      } else if (error.response?.status === 500) {
+        toast.error(ERROR_MESSAGES.SERVER_ERROR);
+      } else {
+        toast.error(ERROR_MESSAGES.NETWORK_ERROR);
+      }
+      console.error('Auth error:', error);
+    } finally {
+      setIsLoading(false);
+=======
     // Redirect based on userType
     if (data.user && data.user.role === 'ngo') {
       navigate('/dashboard');
@@ -90,18 +214,18 @@ const AuthPage = () => {
       navigate('/admin-dashboard');
     } else if (data.user && data.user.role === 'frontliner') {
       navigate('/frontliner-dashboard');
+>>>>>>> 8d6d49e5333069fdf5ff849c81cd398c7540c309
     }
-
-
-  } catch (err) {
-    console.error(err);
-    alert('Something went wrong. Try again.');
-  }
-};
+  };
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
     setFormData({ name: '', email: '', password: '', confirmPassword: '', rememberMe: false });
+    setErrors({});
+  };
+
+  const handleUserTypeChange = (e) => {
+    setUserType(e.target.value);
     setErrors({});
   };
 
@@ -127,26 +251,28 @@ const AuthPage = () => {
             <select
               name="userType"
               value={userType}
-              onChange={(e) => setUserType(e.target.value)}
+              onChange={handleUserTypeChange}
               className="w-full p-2 border rounded"
+              disabled={isLoading}
             >
-              <option value="frontliner">Frontliner</option>
-              <option value="ngo">NGO Partner</option>
-              <option value="admin">Admin</option>
+              <option value={USER_TYPES.FRONTLINER}>Frontliner</option>
+              <option value={USER_TYPES.NGO}>NGO Partner</option>
+              <option value={USER_TYPES.ADMIN}>Admin</option>
             </select>
           </div>
 
           {!isLogin && (
             <div>
-              <label className="block mb-1">{userType === 'ngo' ? 'NGO Name' : 'Full Name'}</label>
+              <label className="block mb-1">{userType === USER_TYPES.NGO ? 'NGO Name' : 'Full Name'}</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 className={`w-full p-2 border rounded ${errors.name ? 'border-red-500' : ''}`}
-                placeholder={userType === 'ngo' ? 'Name of NGO' : 'Your Full Name'}
+                placeholder={userType === USER_TYPES.NGO ? 'Name of NGO' : 'Your Full Name'}
                 required
+                disabled={isLoading}
               />
               {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
             </div>
@@ -162,64 +288,87 @@ const AuthPage = () => {
               className={`w-full p-2 border rounded ${errors.email ? 'border-red-500' : ''}`}
               placeholder="email@example.com"
               required
+              disabled={isLoading}
             />
             {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
           </div>
 
           <div>
             <label className="block mb-1">Password</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className={`w-full p-2 border rounded ${errors.password ? 'border-red-500' : ''}`}
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className={`w-full p-2 border rounded pr-10 ${errors.password ? 'border-red-500' : ''}`}
+                required
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                disabled={isLoading}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
             {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="text-sm mt-1 text-yellow-700"
-            >
-              {showPassword ? 'Hide' : 'Show'} Password
-            </button>
           </div>
 
           {!isLogin && (
             <div>
               <label className="block mb-1">Confirm Password</label>
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className={`w-full p-2 border rounded ${errors.confirmPassword ? 'border-red-500' : ''}`}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  className={`w-full p-2 border rounded pr-10 ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                  required
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  disabled={isLoading}
+                >
+                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {errors.confirmPassword && <p className="text-red-600 text-sm mt-1">{errors.confirmPassword}</p>}
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="text-sm mt-1 text-yellow-700"
-              >
-                {showConfirmPassword ? 'Hide' : 'Show'} Confirm Password
-              </button>
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full py-2 mt-4 bg-black text-yellow-400 rounded hover:bg-yellow-500 hover:text-black transition"
+            className={`w-full py-2 mt-4 bg-black text-yellow-400 rounded hover:bg-yellow-500 hover:text-black transition ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            disabled={isLoading}
           >
-            {isLogin ? 'Sign In' : 'Create Account'}
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-400 mr-2"></div>
+                Processing...
+              </div>
+            ) : (
+              isLogin ? 'Sign In' : 'Create Account'
+            )}
           </button>
         </form>
 
         <div className="text-center">
           <p>
             {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
-            <button onClick={toggleAuthMode} className="underline text-yellow-400 hover:text-yellow-600">
+            <button 
+              onClick={toggleAuthMode} 
+              className="underline text-yellow-400 hover:text-yellow-600"
+              disabled={isLoading}
+            >
               {isLogin ? 'Sign up' : 'Sign in'}
             </button>
           </p>

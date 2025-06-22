@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { LayoutDashboard, FolderOpen, User, Settings } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import ProtectedRoute from "./components/ProtectedRoute";
+import { USER_ROLES } from "./constants";
+import { authUtils } from "./services/auth";
+
 // Public Pages
 import Home from "./components/Home";
 import News from "./components/News";
-import ContactUs from "./components/Contactus";
+import ContactUs from "./components/ContactUs";
 import Login from "./components/Login";
 import Outliner from "./components/Outliner";
 import Total from "./Total";
@@ -24,23 +28,26 @@ import AdminSidebar from "./ADcomponents/AdminSidebar";
 import AdminDashboard from "./ADcomponents/AdminDashboard";
 import AdminProjects from "./ADcomponents/AdminProjects";
 import FundingStatus from "./ADcomponents/FundingStatus";
-import AdminSettings from "./ADcomponents/AdminSettings";
+import AdminSettings from "./ADcomponents/Settings";
+import UserManagement from "./ADcomponents/UserManagement";
 
-// Final App Router
-import FDNavbar from "./FDcomponents/FDNavbar";
-import FDSidebar from "./FDcomponents/FDSidebar";
-import FDDashboard from "./FDcomponents/FDDashboard";
-import FDProjects from "./FDcomponents/FDProjects";
-import FDPriority from "./FDcomponents/FDPriority";
-import FDTasks from "./FDcomponents/FDTasks";
-import FDSettings from "./FDcomponents/FDSettings";
+// Frontliner Dashboard Components
+import FrontlinerNavbar from "./FDcomponents/Navbar";
+import FrontlinerSidebar from "./FDcomponents/Sidebar";
+import FrontlinerDashboard from "./FDcomponents/Dashboard";
+import FrontlinerProjects from "./FDcomponents/Projects";
+import FrontlinerTasks from "./FDcomponents/tasks";
+import FrontlinerPriority from "./FDcomponents/Priority";
+import FrontlinerSettings from "./FDcomponents/Settings";
 
 // NGO Dashboard Wrapper
 const DashboardApp = () => {
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [projects, setProjects] = useState(mockProjects);
   const [acceptedProjects, setAcceptedProjects] = useState(mockAcceptedProjects);
-  const navigate = useNavigate();
+
+  console.log('DashboardApp (NGO) rendered with currentPage:', currentPage);
+
   const handleAcceptProject = (projectId) => {
     const project = projects.find((p) => p.id === projectId);
     if (project) {
@@ -83,6 +90,7 @@ const DashboardApp = () => {
   ];
 
   const renderCurrentPage = () => {
+    console.log('DashboardApp (NGO) - Rendering page:', currentPage);
     switch (currentPage) {
       case "dashboard":
         return <NGODashboard />;
@@ -142,18 +150,82 @@ const DashboardApp = () => {
 
 // Admin Dashboard Wrapper
 const AdminDashboardApp = () => {
+  const [currentPage, setCurrentPage] = useState("dashboard");
+
+  console.log('AdminDashboardApp rendered with currentPage:', currentPage);
+
+  const handleNavigate = (page) => {
+    console.log('AdminDashboardApp - Navigating to:', page);
+    setCurrentPage(page);
+  };
+
+  const renderCurrentPage = () => {
+    console.log('AdminDashboardApp - Rendering page:', currentPage);
+    switch (currentPage) {
+      case "dashboard":
+        return <AdminDashboard onNavigate={handleNavigate} />;
+      case "user-management":
+        return <UserManagement />;
+      case "projects":
+        return <AdminProjects />;
+      case "funding":
+        return <FundingStatus />;
+      case "settings":
+        return <AdminSettings />;
+      default:
+        return <AdminDashboard onNavigate={handleNavigate} />;
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar />
+      <AdminSidebar onNavigate={handleNavigate} currentPage={currentPage} />
       <div className="flex-1 flex flex-col">
         <AdminNavbar />
         <main className="mt-16 p-6">
-          <Routes>
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/admin-dashboard/projects" element={<AdminProjects />} />
-            <Route path="/admin-dashboard/funding" element={<FundingStatus />} />
-            <Route path="/admin-dashboard/settings" element={<AdminSettings />} />
-          </Routes>
+          {renderCurrentPage()}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// Frontliner Dashboard Wrapper
+const FrontlinerDashboardApp = () => {
+  const [currentPage, setCurrentPage] = useState("dashboard");
+
+  console.log('FrontlinerDashboardApp rendered with currentPage:', currentPage);
+
+  const handleNavigate = (page) => {
+    console.log('FrontlinerDashboardApp - Navigating to:', page);
+    setCurrentPage(page);
+  };
+
+  const renderCurrentPage = () => {
+    console.log('FrontlinerDashboardApp - Rendering page:', currentPage);
+    switch (currentPage) {
+      case "dashboard":
+        return <FrontlinerDashboard />;
+      case "projects":
+        return <FrontlinerProjects />;
+      case "tasks":
+        return <FrontlinerTasks />;
+      case "priority":
+        return <FrontlinerPriority />;
+      case "settings":
+        return <FrontlinerSettings />;
+      default:
+        return <FrontlinerDashboard />;
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      <FrontlinerSidebar onNavigate={handleNavigate} currentPage={currentPage} />
+      <div className="flex-1 flex flex-col">
+        <FrontlinerNavbar />
+        <main className="mt-16 p-6">
+          {renderCurrentPage()}
         </main>
       </div>
     </div>
@@ -168,41 +240,207 @@ const FrontlinerDashboardApp = () => {
       <div className="flex-1 flex flex-col">
         <FDNavbar />
         <main className="mt-16 p-6">
-          <Routes>
-            <Route path="/" element={<FDDashboard />} />
-            <Route path="/projects" element={<FDProjects />} />
-            <Route path="/priority" element={<FDPriority />} />
-            <Route path="/tasks" element={<FDTasks />} />
-            <Route path="/settings" element={<FDSettings />} />
-          </Routes>
+          {renderCurrentPage()}
         </main>
       </div>
     </div>
   );
 };
 
-// Final merged App
-const App = () => {
+// Frontliner Dashboard Wrapper
+const FrontlinerDashboardApp = () => {
+  const [currentPage, setCurrentPage] = useState("dashboard");
+
+  console.log('FrontlinerDashboardApp rendered with currentPage:', currentPage);
+
+  const handleNavigate = (page) => {
+    console.log('FrontlinerDashboardApp - Navigating to:', page);
+    setCurrentPage(page);
+  };
+
+  const renderCurrentPage = () => {
+    console.log('FrontlinerDashboardApp - Rendering page:', currentPage);
+    switch (currentPage) {
+      case "dashboard":
+        return <FrontlinerDashboard />;
+      case "projects":
+        return <FrontlinerProjects />;
+      case "tasks":
+        return <FrontlinerTasks />;
+      case "priority":
+        return <FrontlinerPriority />;
+      case "settings":
+        return <FrontlinerSettings />;
+      default:
+        return <FrontlinerDashboard />;
+    }
+  };
+
   return (
-    <Router>
-      <Routes>
-        {/* Public layout pages inside Outliner */}
-        <Route element={<Outliner />}>
-          <Route path="/" element={<Total />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/news" element={<News />} />
-          <Route path="/contact" element={<ContactUs />} />
-        </Route>
+    <div className="flex min-h-screen bg-gray-100">
+      <FrontlinerSidebar onNavigate={handleNavigate} currentPage={currentPage} />
+      <div className="flex-1 flex flex-col">
+        <FrontlinerNavbar />
+        <main className="mt-16 p-6">
+          {renderCurrentPage()}
+        </main>
+      </div>
+    </div>
+  );
+};
 
-        {/* Auth */}
-        <Route path="/login" element={<Login />} />
-
-        {/* Dashboards */}
-        <Route path="/dashboard/*" element={<DashboardApp />} />               {/* NGO */}
-        <Route path="/admin-dashboard/*" element={<AdminDashboardApp />} />   {/* Admin */}
-        <Route path="/frontliner-dashboard/*" element={<FrontlinerDashboardApp />} /> {/* Frontliner */}
-      </Routes>
-    </Router>
+// Final App Router
+const App = () => {
+  console.log('App component rendered');
+  
+  return (
+    <>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
+      <Router>
+        <Routes>
+          <Route element={<Outliner />}>
+            <Route path="/" element={<Total />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/contact" element={<ContactUs />} />
+          </Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/test" element={<div>Test route working!</div>} />
+          <Route path="/auth-test" element={
+            <div className="p-8">
+              <h1>Authentication Test</h1>
+              <pre>{JSON.stringify({
+                isAuthenticated: authUtils.isAuthenticated(),
+                userRole: authUtils.getUserRole(),
+                user: authUtils.getUser(),
+                currentRoute: authUtils.getCurrentUserRoute()
+              }, null, 2)}</pre>
+              
+              <div className="mt-4">
+                <h2>Test Users</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="border p-4 rounded">
+                    <h3>Admin</h3>
+                    <p>Email: admin@test.com</p>
+                    <p>Password: Admin123!</p>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('http://localhost:8000/api/v1/user/create-test-user', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                          });
+                          const data = await response.json();
+                          alert(data.message);
+                        } catch (error) {
+                          alert('Error creating test user: ' + error.message);
+                        }
+                      }}
+                      className="px-4 py-2 bg-red-600 text-white rounded"
+                    >
+                      Create Admin
+                    </button>
+                  </div>
+                  
+                  <div className="border p-4 rounded">
+                    <h3>Frontliner</h3>
+                    <p>Email: frontliner@test.com</p>
+                    <p>Password: Frontliner123!</p>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('http://localhost:8000/api/v1/user/create-test-frontliner', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                          });
+                          const data = await response.json();
+                          alert(data.message);
+                        } catch (error) {
+                          alert('Error creating test user: ' + error.message);
+                        }
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded"
+                    >
+                      Create Frontliner
+                    </button>
+                  </div>
+                  
+                  <div className="border p-4 rounded">
+                    <h3>NGO</h3>
+                    <p>Email: ngo@test.com</p>
+                    <p>Password: NGO123!</p>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('http://localhost:8000/api/v1/user/create-test-ngo', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                          });
+                          const data = await response.json();
+                          alert(data.message);
+                        } catch (error) {
+                          alert('Error creating test user: ' + error.message);
+                        }
+                      }}
+                      className="px-4 py-2 bg-yellow-600 text-white rounded"
+                    >
+                      Create NGO
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          } />
+          <Route 
+            path="/ngo/dashboard/*" 
+            element={
+              <ProtectedRoute requiredRole={USER_ROLES.PARTNER_NGO}>
+                <DashboardApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/dashboard/*" 
+            element={
+              <ProtectedRoute requiredRole={USER_ROLES.ADMIN}>
+                <AdminDashboardApp />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/frontliner/dashboard/*" 
+            element={
+              <ProtectedRoute requiredRole={USER_ROLES.FRONTLINER}>
+                <FrontlinerDashboardApp />
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </Router>
+    </>
   );
 };
 
