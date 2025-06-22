@@ -93,9 +93,34 @@ const AuthPage = () => {
       newErrors.name = 'Name is required';
     }
 
+<<<<<<< HEAD
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setIsLoading(false);
+=======
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:5000/api/v1/user/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+        userType
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || 'Login failed');
+>>>>>>> 8d6d49e5333069fdf5ff849c81cd398c7540c309
       return;
     }
 
@@ -142,6 +167,7 @@ const AuthPage = () => {
           })
         };
 
+<<<<<<< HEAD
         const data = await userAPI.register(userData);
         
         // Store user data using auth utils
@@ -180,6 +206,15 @@ const AuthPage = () => {
       console.error('Auth error:', error);
     } finally {
       setIsLoading(false);
+=======
+    // Redirect based on userType
+    if (data.user && data.user.role === 'ngo') {
+      navigate('/dashboard');
+    } else if (data.user && data.user.role === 'admin') {
+      navigate('/admin-dashboard');
+    } else if (data.user && data.user.role === 'frontliner') {
+      navigate('/frontliner-dashboard');
+>>>>>>> 8d6d49e5333069fdf5ff849c81cd398c7540c309
     }
   };
 

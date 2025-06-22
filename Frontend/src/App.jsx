@@ -23,10 +23,10 @@ import mockProjects from "./ngocomponents/mockProjects.jsx";
 import mockAcceptedProjects from "./ngocomponents/mockAcceptedProjects.jsx";
 
 // Admin Dashboard Components
-import AdminNavbar from "./ADcomponents/Navbar";
-import AdminSidebar from "./ADcomponents/Sidebar";
-import AdminDashboard from "./ADcomponents/Dashboard";
-import AdminProjects from "./ADcomponents/Projects";
+import AdminNavbar from "./ADcomponents/AdminNavbar";
+import AdminSidebar from "./ADcomponents/AdminSidebar";
+import AdminDashboard from "./ADcomponents/AdminDashboard";
+import AdminProjects from "./ADcomponents/AdminProjects";
 import FundingStatus from "./ADcomponents/FundingStatus";
 import AdminSettings from "./ADcomponents/Settings";
 import UserManagement from "./ADcomponents/UserManagement";
@@ -79,6 +79,7 @@ const DashboardApp = () => {
 
   const handleLogout = () => {
     alert("Logged out successfully!");
+    navigate('/');
   };
 
   const navigationItems = [
@@ -181,6 +182,63 @@ const AdminDashboardApp = () => {
       <AdminSidebar onNavigate={handleNavigate} currentPage={currentPage} />
       <div className="flex-1 flex flex-col">
         <AdminNavbar />
+        <main className="mt-16 p-6">
+          {renderCurrentPage()}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// Frontliner Dashboard Wrapper
+const FrontlinerDashboardApp = () => {
+  const [currentPage, setCurrentPage] = useState("dashboard");
+
+  console.log('FrontlinerDashboardApp rendered with currentPage:', currentPage);
+
+  const handleNavigate = (page) => {
+    console.log('FrontlinerDashboardApp - Navigating to:', page);
+    setCurrentPage(page);
+  };
+
+  const renderCurrentPage = () => {
+    console.log('FrontlinerDashboardApp - Rendering page:', currentPage);
+    switch (currentPage) {
+      case "dashboard":
+        return <FrontlinerDashboard />;
+      case "projects":
+        return <FrontlinerProjects />;
+      case "tasks":
+        return <FrontlinerTasks />;
+      case "priority":
+        return <FrontlinerPriority />;
+      case "settings":
+        return <FrontlinerSettings />;
+      default:
+        return <FrontlinerDashboard />;
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      <FrontlinerSidebar onNavigate={handleNavigate} currentPage={currentPage} />
+      <div className="flex-1 flex flex-col">
+        <FrontlinerNavbar />
+        <main className="mt-16 p-6">
+          {renderCurrentPage()}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+//frontlinersapp
+const FrontlinerDashboardApp = () => {
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      <FDSidebar />
+      <div className="flex-1 flex flex-col">
+        <FDNavbar />
         <main className="mt-16 p-6">
           {renderCurrentPage()}
         </main>

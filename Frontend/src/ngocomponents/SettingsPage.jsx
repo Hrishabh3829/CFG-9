@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, FolderOpen, User, Settings, LogOut, FileText, CheckCircle, XCircle, Clock, Upload, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
 
 const SettingsPage = ({ onLogout }) => {
+  const navigate = useNavigate(); // ⬅️ Hook to navigate
   const [profile, setProfile] = useState({
     name: "NGO Admin",
     email: "admin@ngo.org",
@@ -11,6 +13,11 @@ const SettingsPage = ({ onLogout }) => {
 
   const handleSaveProfile = () => {
     alert("Profile updated successfully!");
+  };
+
+  const handleLogout = () => {
+    if (onLogout) onLogout(); // ⬅️ Optional: perform actual logout logic (clear cookie, context, etc.)
+    navigate('/');            // ⬅️ Redirect to homepage
   };
 
   return (
@@ -23,7 +30,6 @@ const SettingsPage = ({ onLogout }) => {
       <div className="max-w-2xl">
         <div className="bg-gray-800 border border-yellow-500 rounded-lg p-6 mb-6">
           <h2 className="text-xl font-bold text-white mb-6">Profile Information</h2>
-          
           <div className="space-y-4">
             <div>
               <label className="block text-yellow-400 text-sm font-medium mb-2">Full Name</label>
@@ -34,7 +40,6 @@ const SettingsPage = ({ onLogout }) => {
                 className="w-full bg-gray-700 border border-gray-600 text-white px-4 py-2 rounded-lg focus:border-yellow-500 focus:outline-none"
               />
             </div>
-            
             <div>
               <label className="block text-yellow-400 text-sm font-medium mb-2">Email</label>
               <input 
@@ -44,7 +49,6 @@ const SettingsPage = ({ onLogout }) => {
                 className="w-full bg-gray-700 border border-gray-600 text-white px-4 py-2 rounded-lg focus:border-yellow-500 focus:outline-none"
               />
             </div>
-            
             <div>
               <label className="block text-yellow-400 text-sm font-medium mb-2">Organization</label>
               <input 
@@ -54,7 +58,6 @@ const SettingsPage = ({ onLogout }) => {
                 className="w-full bg-gray-700 border border-gray-600 text-white px-4 py-2 rounded-lg focus:border-yellow-500 focus:outline-none"
               />
             </div>
-            
             <div>
               <label className="block text-yellow-400 text-sm font-medium mb-2">Phone</label>
               <input 
@@ -65,7 +68,7 @@ const SettingsPage = ({ onLogout }) => {
               />
             </div>
           </div>
-          
+
           <button 
             onClick={handleSaveProfile}
             className="mt-6 bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-2 rounded-lg font-medium transition-colors"
@@ -77,7 +80,7 @@ const SettingsPage = ({ onLogout }) => {
         <div className="bg-gray-800 border border-red-500 rounded-lg p-6">
           <h2 className="text-xl font-bold text-white mb-4">Account Actions</h2>
           <button 
-            onClick={onLogout}
+            onClick={handleLogout}
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center space-x-2 transition-colors"
           >
             <LogOut className="w-4 h-4" />
@@ -88,4 +91,5 @@ const SettingsPage = ({ onLogout }) => {
     </div>
   );
 };
+
 export default SettingsPage;
