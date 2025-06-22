@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -7,15 +6,13 @@ import FolderIcon from '@mui/icons-material/Folder';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-const Sidebar = () => {
-  const navigate = useNavigate();
-
+const Sidebar = ({ onNavigate, currentPage }) => {
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-    { text: 'Tasks', icon: <AssignmentIcon />, path: '/tasks' },
-    { text: 'Projects', icon: <FolderIcon />, path: '/projects' },
-    { text: 'Priority', icon: <PriorityHighIcon />, path: '/priority' },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+    { text: 'Dashboard', icon: <DashboardIcon />, page: 'dashboard' },
+    { text: 'Tasks', icon: <AssignmentIcon />, page: 'tasks' },
+    { text: 'Projects', icon: <FolderIcon />, page: 'projects' },
+    { text: 'Priority', icon: <PriorityHighIcon />, page: 'priority' },
+    { text: 'Settings', icon: <SettingsIcon />, page: 'settings' },
   ];
 
   return (
@@ -27,8 +24,12 @@ const Sidebar = () => {
         {menuItems.map((item) => (
           <li
             key={item.text}
-            className="flex items-center p-3 rounded cursor-pointer hover:bg-yellow-400/10 transition"
-            onClick={() => navigate(item.path)}
+            className={`flex items-center p-3 rounded cursor-pointer transition ${
+              currentPage === item.page 
+                ? 'bg-yellow-400/20 text-yellow-300' 
+                : 'hover:bg-yellow-400/10'
+            }`}
+            onClick={() => onNavigate(item.page)}
           >
             <div className="text-yellow-400 mr-3">{item.icon}</div>
             <span className="text-sm font-medium">{item.text}</span>
